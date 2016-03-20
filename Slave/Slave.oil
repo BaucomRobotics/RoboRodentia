@@ -1,0 +1,164 @@
+//*************************************************************************************
+/** @file    SlaveMind.oil
+ *  @brief   OSEK linker file for Slave nxt
+ *  @details This file links the c++ source code written to the OSEK operating 
+ * 			 system.
+ *
+ *  Revised:
+ *     \li 02-16-2015 ARB Original file
+ *
+ *  License:
+ *		
+ *   Copyright (C) 2015 Alex Baucom
+ *
+ *   This program is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   This program is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ * 
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.*/
+//*************************************************************************************
+
+#include "implementation.oil"
+
+CPU ATMEL_AT91SAM7S256
+{
+  OS LEJOS_OSEK
+  {
+    STATUS = EXTENDED;
+    STARTUPHOOK = TRUE;
+    ERRORHOOK = FALSE;
+    SHUTDOWNHOOK = FALSE;
+    PRETASKHOOK = FALSE;
+    POSTTASKHOOK = FALSE;
+    USEGETSERVICEID = FALSE;
+    USEPARAMETERACCESS = FALSE;
+    USERESSCHEDULER = FALSE;
+  };
+
+  /* Definition of application mode */
+  APPMODE appmode1{}; 
+  
+  
+  EVENT EventSleep
+  {
+    MASK = AUTO;
+  };
+  
+  EVENT EventSleepI2C
+  {
+    MASK = AUTO;
+  };
+    
+
+  /* Definition of SlaveMind */
+  TASK SlaveMind
+  {
+    AUTOSTART = TRUE //Technically activated by SlaveInit
+    {
+      APPMODE = appmode1;
+    };
+    PRIORITY = 2; 
+    ACTIVATION = 1;
+    SCHEDULE = FULL;
+    STACKSIZE = 512;
+    EVENT = EventSleep;
+    EVENT = EventSleepI2C;
+  };
+  
+  
+   /* Definition of SlaveInit */
+  TASK SlaveInit
+  {
+    AUTOSTART = TRUE
+    {
+      APPMODE = appmode1;
+    };
+    PRIORITY = 1; /* must be highest priority to start before everything else 
+					 unless my startup hook thing works out*/
+    ACTIVATION = 1;
+    SCHEDULE = FULL;
+    STACKSIZE = 512;
+    EVENT = EventSleep;
+    EVENT = EventSleepI2C;
+  };
+  
+  /* Definition of Lifter */
+  TASK LifterTask
+  {
+    AUTOSTART = TRUE  //Technically activated by SlaveInit
+    {
+      APPMODE = appmode1;
+    };
+    PRIORITY = 3;
+    ACTIVATION = 1;
+    SCHEDULE = FULL;
+    STACKSIZE = 512;
+    EVENT = EventSleep;
+    EVENT = EventSleepI2C;
+  };
+  
+  /* Definition of Claw */
+  TASK ClawTask
+  {
+    AUTOSTART = TRUE  //Technically activated by SlaveInit
+    {
+      APPMODE = appmode1;
+    };
+    PRIORITY = 5;
+    ACTIVATION = 1;
+    SCHEDULE = FULL;
+    STACKSIZE = 512;
+    EVENT = EventSleep;
+    EVENT = EventSleepI2C;
+  };
+  
+  
+    /* Definition of Tower */
+  TASK TowerTask
+  {
+    AUTOSTART = TRUE  //Technically activated by SlaveInit
+    {
+      APPMODE = appmode1;
+    };
+    PRIORITY = 3;
+    ACTIVATION = 1;
+    SCHEDULE = FULL;
+    STACKSIZE = 512;
+    EVENT = EventSleep;
+    EVENT = EventSleepI2C;
+  }; 
+ 
+  
+     /* Definition of Comm */
+  TASK CommTask
+  {
+    AUTOSTART = TRUE  //Technically activated by SlaveInit
+    {
+      APPMODE = appmode1;
+    };
+    PRIORITY = 5;
+    ACTIVATION = 1;
+    SCHEDULE = FULL;
+    STACKSIZE = 512;
+    EVENT = EventSleep;
+    EVENT = EventSleepI2C;
+  }; 
+  
+  
+  
+  COUNTER SysTimerCnt
+  {
+    MINCYCLE = 1;
+    MAXALLOWEDVALUE = 10000;
+    TICKSPERBASE = 1; /* One tick is equal to 1msec */
+  };
+  
+};
+

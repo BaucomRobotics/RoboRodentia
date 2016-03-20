@@ -1,0 +1,173 @@
+//*************************************************************************************
+/** @file    Master.oil
+ *  @brief   OSEK linker file for Master nxt
+ *  @details This file links the c++ source code written to the OSEK operating 
+ * 			 system.
+ *
+ *  Revised:
+ *     \li 02-16-2015 ARB Original file
+ *
+ *  License:
+ *		
+ *   Copyright (C) 2015 Alex Baucom
+ *
+ *   This program is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   This program is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ * 
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program.  If not, see <http://www.gnu.org/licenses/>.*/
+//*************************************************************************************
+
+
+#include "implementation.oil"
+
+//*************************************************************************************
+/* CPU Description
+ */
+
+CPU ATMEL_AT91SAM7S256
+{
+  OS LEJOS_OSEK
+  {
+    STATUS = EXTENDED;
+    STARTUPHOOK = FALSE;
+    ERRORHOOK = FALSE;
+    SHUTDOWNHOOK = FALSE;
+    PRETASKHOOK = FALSE;
+    POSTTASKHOOK = FALSE;
+    USEGETSERVICEID = FALSE;
+    USEPARAMETERACCESS = FALSE;
+    USERESSCHEDULER = FALSE;
+  };
+
+//*************************************************************************************
+/* Definition of application mode
+ */
+  APPMODE appmode1{}; 
+  
+  
+//*************************************************************************************
+/* Event Declarations
+ */  
+  EVENT EventSleep
+  {
+    MASK = AUTO;
+  };
+  
+  EVENT EventSleepI2C
+  {
+    MASK = AUTO;
+  };
+  
+
+//*************************************************************************************
+/* System Counter
+ */   
+  COUNTER SysTimerCnt
+  {
+    MINCYCLE = 1;
+    MAXALLOWEDVALUE = 10000;
+    TICKSPERBASE = 1; /* One tick is equal to 1msec */
+  };
+  
+
+//*************************************************************************************
+/* Master Mind Task Description
+ */ 
+  TASK MasterMind
+  {
+    
+	AUTOSTART = TRUE /*Technically autostarted, but really activated by MasterInit*/
+	{
+		APPMODE = appmode1;
+	};  
+    PRIORITY = 2;     /*1 is lowest priority*/
+    ACTIVATION = 1;
+    SCHEDULE = FULL;  /*Full pre-emptive Scheduling*/
+    STACKSIZE = 512;
+	EVENT = EventSleep;
+    EVENT = EventSleepI2C;
+  };
+  
+
+  
+//*************************************************************************************
+/* Master Mind Initiation Task Description
+ */ 
+  TASK MasterInit
+  {
+    AUTOSTART = TRUE /*autostart task (it does initiation so that makes sense...)*/
+    {
+      APPMODE = appmode1;
+    };
+    PRIORITY = 1;      /*1 is lowest priority*/
+    ACTIVATION = 1;
+    SCHEDULE = FULL;   /*Full pre-emptive Scheduling*/
+    STACKSIZE = 512;
+	EVENT = EventSleep;
+    EVENT = EventSleepI2C;
+  };
+  
+
+  //*************************************************************************************
+/* Communication Task Description
+ */ 
+  TASK CommTask
+  {
+    AUTOSTART = TRUE /*autostart task*/
+    {
+      APPMODE = appmode1;
+    };
+    PRIORITY = 5;      /*1 is lowest priority*/
+    ACTIVATION = 1;
+    SCHEDULE = FULL;   /*Full pre-emptive Scheduling*/
+    STACKSIZE = 512;
+	EVENT = EventSleep;
+    EVENT = EventSleepI2C;
+  };
+  
+    //*************************************************************************************
+/* Navigation Task Description
+ */ 
+  TASK NavTask
+  {
+    AUTOSTART = TRUE /*autostart task*/
+    {
+      APPMODE = appmode1;
+    };
+    PRIORITY = 3;      /*1 is lowest priority*/
+    ACTIVATION = 1;
+    SCHEDULE = FULL;   /*Full pre-emptive Scheduling*/
+    STACKSIZE = 512;
+	EVENT = EventSleep;
+    EVENT = EventSleepI2C;
+  };
+  
+  
+//*************************************************************************************
+/* Line Follow Task Description
+ */ 
+  TASK LFTask
+  {
+    AUTOSTART = TRUE /*autostart task*/
+    {
+      APPMODE = appmode1;
+    };
+    PRIORITY = 4;      /*1 is lowest priority*/
+    ACTIVATION = 1;
+    SCHEDULE = FULL;   /*Full pre-emptive Scheduling*/
+    STACKSIZE = 512;
+	EVENT = EventSleep;
+    EVENT = EventSleepI2C;
+  };
+  
+  
+};
+
